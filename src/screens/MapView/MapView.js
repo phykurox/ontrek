@@ -7,6 +7,10 @@ import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
+import getNearestMrt from 'nearest-mrt';
+import haversine from 'haversine'
+import pick from 'lodash/pick'
+
 import * as Permissions from 'expo-permissions';
 
 // Env vars
@@ -28,12 +32,18 @@ class MapViewScreen extends Component {
             startRegion: null,
             currPos: null,
             destPos: null,
+            prevLatLng: {},
+            markers:[],
+            distanceTravelled: 0,
             startedLiveTracking: false,
             loader: true
         };
+        this.getNearestMRT = this.getNearestMRT.bind(this);
     }
+    
 
     componentDidMount = async () => {
+        const { distanceTravelled } = this.state
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status !== 'granted') {
             alert('Location access is important to use this app')
@@ -41,7 +51,25 @@ class MapViewScreen extends Component {
         else {
             this.handleLocation();
         }
+        let position = await Location.getCurrentPositionAsync({});
+        const newLatLngs = {latitude: position.coords.latitude, longitude: position.coords.longitude }
+        const positionLatLngs = pick(position.coords, ['latitude', 'longitude'])
+        this.setState({
+            distanceTravelled: distanceTravelled + this.calcDistance(newLatLngs),
+            prevLatLng: newLatLngs
+          })
     }
+
+    // componentDidMount = async () => {
+    //     const { distanceTravelled } = this.state
+    //     let position = await Location.getCurrentPositionAsync({});
+    //     const newLatLngs = {latitude: position.coords.latitude, longitude: position.coords.longitude }
+    //     const positionLatLngs = pick(position.coords, ['latitude', 'longitude'])
+    //     this.setState({
+    //         distanceTravelled: distanceTravelled + this.calcDistance(newLatLngs),
+    //         prevLatLng: newLatLngs
+    //       })
+    // }
 
     // UTILITY FUNCTIONS
 
@@ -107,6 +135,30 @@ class MapViewScreen extends Component {
         }
     }
 
+    calcDistance(newLatLng) {
+        const { prevLatLng } = this.state
+        return (haversine(prevLatLng, newLatLng) || 0)
+      }
+
+    getNearestMRT = async () => {
+        let Loc = await Location.getCurrentPositionAsync({});
+        let cLoc = [Loc.coords.longitude, Loc.coords.latitude]
+        const nearestMRT = getNearestMrt(cLoc, false, 2000)
+        // const nearestMRT = getNearestMrt(cLoc, false, 2000)
+        // let currLoc = {
+        //     latitude: nearestMRT.result[0].station.latitude,
+        //     longitude: nearestMRT.result[0].station.longitude
+        // }
+        // this.setState({
+        //     markers: [
+        //         ...this.state.markers,
+        //     {
+        //         coordinate: currLoc
+        //     }
+        //     ] 
+        // })
+    }
+
     animate = () => {
         setTimeout(() => {
             this.refs.map.animateToRegion(
@@ -145,6 +197,11 @@ class MapViewScreen extends Component {
                     >
                         {/* <Marker coordinate={currPos} title={'Start'} /> */}
                         {destPos ? <Marker coordinate={destPos} title={'Destination'} /> : null}
+                        {this.state.markers.map((marker) => {
+                            return (
+                            <Marker {...marker} />
+                            ) 
+                        })}
                         <MapViewDirections
                             origin={currPos}
                             destination={destPos}
@@ -153,6 +210,7 @@ class MapViewScreen extends Component {
                             strokeWidth={3}
                             strokeColor='#222'
                             />
+                        
                     </MapView>
                     
                     <View style={{ ...styles.autoCompleteContainer, zIndex: 1 }}>
@@ -187,7 +245,7 @@ class MapViewScreen extends Component {
                     </View>
                     <View style={styles.fmbox}>
                         <Button iconLeft
-                        onPress={() =>alert('Add payment')}>
+                        onPress={this.getNearestMRT}>
                             <Icon name='paw'/>
                             <Text style={{color: '#fff'}}>Start First Mile</Text>
                         </Button>
@@ -220,6 +278,12 @@ class MapViewScreen extends Component {
                                 listViewDisplayed={false}
                                 nearbyPlacesAPI={'GoogleReverseGeocoding'}
                             />
+                        </View>
+                    </View>
+                    <View style={styles.bottomBar}>
+                        <View style={styles.bottomBarGroup}>
+                            <Text style={styles.bottomBarHeader}>DISTANCE</Text>
+                            <Text style={styles.bottomBarContent}>{parseFloat(this.state.distanceTravelled).toFixed(2)} km</Text>
                         </View>
                     </View>
                 </View>
@@ -265,7 +329,33 @@ const styles = StyleSheet.create({
     Text: {
         fontStyle: 'italic',
         padding: 10
-    }
+    },
+    bottomBar: {
+        position: 'absolute',
+        height: 80,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        width: WIDTH,
+        padding: 10,
+        flexWrap: 'wrap',
+        flexDirection: 'row'
+      },
+      bottomBarGroup: {
+        flex: 1
+      },
+      bottomBarHeader: {
+        color: '#fff',
+        fontWeight: "400",
+        textAlign: 'center'
+      },
+      bottomBarContent: {
+        color: '#fff',
+        fontWeight: "700",
+        fontSize: 18,
+        marginTop: 5,
+        color: '#19B5FE',
+        textAlign: 'center'
+      },
 })
 
 export default MapViewScreen
