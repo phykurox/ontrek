@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import * as firebase from 'firebase';
 import {
   StyleSheet,
   View,
@@ -8,10 +9,8 @@ import {
   TextInput,
   Dimensions,
   TouchableOpacity,
-  Keyboard,
   Alert
 } from 'react-native';
-
 
 import bgImage from '../images/background.jpg'
 import logo from '../images/logo.png'
@@ -19,12 +18,34 @@ import Icon from 'react-native-vector-icons/MaterialIcons'
 
 const { width: WIDTH } = Dimensions.get('window')
 
+firebase.initializeApp({
+  apiKey: "",
+  authDomain: "",
+  databaseURL: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+});
+
 export default class Login extends Component <[]> {
 
-  state = { userEmail: '', userPassword: '', errorMessage: null }
-  handleLogin = () => {
-    // TODO: Firebase stuff...
-    console.log('handleLogin')
+  constructor(props) {
+    super(props);
+    this.state = {email: '', password: '', error: '', loading: false};
+  }
+
+  onLoginPress() {
+    this.setState({error: '', loading: true});
+    const { email, password } = this.state;
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .then(() => {
+      this.setState({error: '', loading: false});
+      this.props.navigation.navigate('Home');
+    })
+    .catch(() => {
+      this.setState({ error: 'Authentication failed', loading: false});
+      Alert.alert('Authentication Error', 'Invalid Credentials');
+    })
   }
 
   render() {
@@ -43,7 +64,7 @@ export default class Login extends Component <[]> {
             placeholderTextColor = 'white'
             underlineColorAndroid = 'transparent'
             keyboardType="email-address"
-            onChangeText={userEmail => this.setState({userEmail})}
+            onChangeText={email => this.setState({email})}
             />
         </View>
 
@@ -55,7 +76,7 @@ export default class Login extends Component <[]> {
             secureTextEntry = {true}
             placeholderTextColor = 'white'
             underlineColorAndroid = 'transparent'
-            onChangeText={userPassword => this.setState({userPassword})}
+            onChangeText={password => this.setState({password})}
             />
 
         </View>
@@ -64,7 +85,7 @@ export default class Login extends Component <[]> {
           
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.btnLogin}>
+        <TouchableOpacity style={styles.btnLogin} onPress={this.onLoginPress.bind(this)}>
           <Text style={styles.logintext}>Login</Text>
         </TouchableOpacity>
         

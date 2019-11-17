@@ -6,7 +6,9 @@
 
 `npm i react-native-vector-icons`
 
+`npm i firebase`
+
 #### Useful Commands
-`gradlew clean`
+`cd android && gradlew clean`
 
 `react-native link`

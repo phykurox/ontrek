@@ -1,16 +1,24 @@
-// Home.js
 import React from 'react'
+import * as firebase from 'firebase'
 import { StyleSheet, Platform, Image, Text, View } from 'react-native'
+
+
 export default class Home extends React.Component {
   state = { currentUser: null }
+
+componentDidMount() {
+    const { currentUser } = firebase.auth()
+    this.setState({ currentUser })
+}
+
+
 render() {
     const { currentUser } = this.state
-return (
+  return (
       <View style={styles.container}>
-        <Text>
-          Hi {currentUser && currentUser.email}!
-        </Text>
-      </View>
+        <Text style={{fontSize: 20}}> Hi <Text style={{color:'#e93766', fontSize: 20}}> 
+          {currentUser && currentUser.email}!
+        </Text></Text></View>
     )
   }
 }

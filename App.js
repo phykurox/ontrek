@@ -1,12 +1,18 @@
-import { createAppContainer } from 'react-navigation'
+import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
-import Login from './src/pages/Login'
-import Forgotpw from './src/pages/Forgotpw'
+import Login from './src/pages/Login';
+import Forgotpw from './src/pages/Forgotpw';
+import Home from './src/pages/Home';
+// import Loading from  './src/pages/Loading';
+
+
 
 const RootStack = createStackNavigator({
+	// Loading: {screen: Loading},
 	Login: {screen: Login},
-	Forget: {screen: Forgotpw}
+	Forget: {screen: Forgotpw},
+	Home: {screen: Home}
 	},
 
 	{ initialRouteName: 'Login', headerMode: 'Login' }
