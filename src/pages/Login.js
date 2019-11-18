@@ -18,7 +18,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons'
 
 const { width: WIDTH } = Dimensions.get('window')
 
-export default class Login extends Component <[]> {
+export default class Login extends Component {
 
   constructor(props) {
     super(props);
@@ -29,7 +29,7 @@ export default class Login extends Component <[]> {
     const { email, password } = this.state;
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then(() => {
-      this.props.navigation.navigate('Home');
+      this.props.navigation.navigate('Homepage');
     })
     .catch(() => {
       Alert.alert('Authentication Error', 'Invalid Credentials');
