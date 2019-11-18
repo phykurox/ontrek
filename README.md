@@ -8,7 +8,11 @@
 
 `npm i firebase`
 
+`npm i react-native-gesture-handler`
+
 #### Useful Commands
 `cd android && gradlew clean`
 
 `react-native link`
+
+`react-native link react-native-gesture-handler`

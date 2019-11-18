@@ -1,6 +1,6 @@
 import React from 'react'
 import * as firebase from 'firebase'
-import { StyleSheet, Platform, Image, Text, View } from 'react-native'
+import { StyleSheet, Button, Text, View } from 'react-native'
 
 
 export default class Home extends React.Component {
@@ -18,11 +18,14 @@ render() {
       <View style={styles.container}>
         <Text style={{fontSize: 20}}> Hi <Text style={{color:'#e93766', fontSize: 20}}> 
           {currentUser && currentUser.email}!
-        </Text></Text></View>
+        </Text></Text>
+        <Button title="Logout" onPress={() => firebase.auth().signOut()}  />
+        </View>
     )
   }
 }
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     justifyContent: 'center',

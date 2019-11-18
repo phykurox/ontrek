@@ -18,32 +18,20 @@ import Icon from 'react-native-vector-icons/MaterialIcons'
 
 const { width: WIDTH } = Dimensions.get('window')
 
-firebase.initializeApp({
-  apiKey: "",
-  authDomain: "",
-  databaseURL: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-});
-
 export default class Login extends Component <[]> {
 
   constructor(props) {
     super(props);
-    this.state = {email: '', password: '', error: '', loading: false};
+    this.state = {email: '', password: ''};
   }
 
   onLoginPress() {
-    this.setState({error: '', loading: true});
     const { email, password } = this.state;
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then(() => {
-      this.setState({error: '', loading: false});
       this.props.navigation.navigate('Home');
     })
     .catch(() => {
-      this.setState({ error: 'Authentication failed', loading: false});
       Alert.alert('Authentication Error', 'Invalid Credentials');
     })
   }
@@ -82,7 +70,6 @@ export default class Login extends Component <[]> {
         </View>
         <TouchableOpacity style={styles.btnForgot} onPress={() => this.props.navigation.navigate('Forget')}>
           <Text style={styles.forgettext}>Forgot Password?</Text>
-          
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.btnLogin} onPress={this.onLoginPress.bind(this)}>

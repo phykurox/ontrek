@@ -1,8 +1,16 @@
 import React, { Component } from 'react';
+import {StyleSheet, View, Text, ActivityIndicator} from 'react-native';
 import * as firebase from 'firebase';
-import Login from './src/pages/Login';
-import Home from './src/pages/Home';
 
+
+firebase.initializeApp({
+  apiKey: "",
+  authDomain: "",
+  databaseURL: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+});
 
 export default class Loading extends Component {
     componentDidMount() {
@@ -10,7 +18,7 @@ export default class Loading extends Component {
     }
   
     checkIfLoggedIn = () => {
-    fire.auth().onAuthStateChanged(
+    firebase.auth().onAuthStateChanged(
       function(user) {
       if(user){
         this.props.navigation.navigate('Home')
