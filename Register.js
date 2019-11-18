@@ -1,12 +1,5 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
-
 import React, {Component} from 'react';
+import * as firebase from 'firebase';
 import {
   StyleSheet,
   View,
@@ -20,32 +13,15 @@ import {
   Alert
 } from 'react-native';
 
-import { StackNavigator } from 'react-navigation';
-import {Actions} from 'react-native-router-flux';
+
 import bgImage from '../images/background.jpg'
 import logo from '../images/logo.png'
 import Icon from 'react-native-vector-icons/MaterialIcons'
-
-import firebase as 'firebase';
 
 const { width: WIDTH } = Dimensions.get('window')
 
 export default class Register extends Component <[]> {
 			
-	firebaseConfig = {
-    apiKey: "AIzaSyCfd6oB6-iA27Av-yx-hrTquK4F5WwcnVg",
-    authDomain: "ontrek-3a9e6.firebaseapp.com",
-    databaseURL: "https://ontrek-3a9e6.firebaseio.com",
-    projectId: "ontrek-3a9e6",
-    storageBucket: "ontrek-3a9e6.appspot.com",
-    messagingSenderId: "23020331850",
-    appId: "1:23020331850:web:1d669b46c2fc9f623517b3"
-  };
-  
-  
-	// Initialize Firebase
-	firebase.initializeApp(firebaseConfig);
-	
 	handleRegister = () => {
 	  firebase.auth().createUserWithEmailAndPassword(this.state.userEmail, this.state.userPassword)
 	  .then((res) => {
@@ -81,12 +57,10 @@ export default class Register extends Component <[]> {
         </View>
 
         <View style={styles.inputContainer}>
-        <Icon name={'person-outline'} size={28} color={'rgba(255,255,255,0.7)'} 
-          style = {styles.inputIcon}/>
+        
           <TextInput 
 			style={styles.input}
             placeholder = {'Full Name'}
-            secureTextEntry = {true}
             placeholderTextColor = 'white'
             underlineColorAndroid = 'transparent'
 			value = {this.state.userName}
@@ -95,8 +69,7 @@ export default class Register extends Component <[]> {
         </View>
 		
 		<View style={styles.inputContainer}>
-          <Icon name={'person-outline'} size={28} color={'rgba(255,255,255,0.7)'} 
-          style = {styles.inputIcon}/>
+          
           <TextInput 
 			style={styles.input}
             placeholder = {'Email'}
@@ -109,8 +82,7 @@ export default class Register extends Component <[]> {
         </View>
 
         <View style={styles.inputContainer}>
-        <Icon name={'lock-outline'} size={28} color={'rgba(255,255,255,0.7)'} 
-          style = {styles.inputIcon}/>
+        
           <TextInput 
 			style={styles.input}
             placeholder = {'Password'}
@@ -123,12 +95,10 @@ export default class Register extends Component <[]> {
         </View>  		
 		
 		<View style={styles.inputContainer}>
-        <Icon name={'lock-outline'} size={28} color={'rgba(255,255,255,0.7)'} 
-          style = {styles.inputIcon}/>
+        
           <TextInput 
 			style={styles.input}
             placeholder = {'Age'}
-            secureTextEntry = {true}
             placeholderTextColor = 'white'
             underlineColorAndroid = 'transparent'
 			value = {this.state.userAge}
@@ -137,12 +107,10 @@ export default class Register extends Component <[]> {
         </View>
 		
 		<View style={styles.inputContainer}>
-        <Icon name={'lock-outline'} size={28} color={'rgba(255,255,255,0.7)'} 
-          style = {styles.inputIcon}/>
+        
           <TextInput 
 			style={styles.input}
             placeholder = {'Gender'}
-            secureTextEntry = {true}
             placeholderTextColor = 'white'
             underlineColorAndroid = 'transparent'
 			value = {this.state.userGender}
@@ -151,12 +119,10 @@ export default class Register extends Component <[]> {
         </View>
 		
 		<View style={styles.inputContainer}>
-        <Icon name={'lock-outline'} size={28} color={'rgba(255,255,255,0.7)'} 
-          style = {styles.inputIcon}/>
+        
           <TextInput 
 			style={styles.input}
             placeholder = {'Phone Number'}
-            secureTextEntry = {true}
             placeholderTextColor = 'white'
             underlineColorAndroid = 'transparent'
 			value = {this.state.userPhoneNumber}
@@ -165,20 +131,16 @@ export default class Register extends Component <[]> {
         </View>
 		
 		<View style={styles.inputContainer}>
-        <Icon name={'lock-outline'} size={28} color={'rgba(255,255,255,0.7)'} 
-          style = {styles.inputIcon}/>
+        
           <TextInput 
 			style={styles.input}
             placeholder = {'Commute Method'}
-            secureTextEntry = {true}
             placeholderTextColor = 'white'
             underlineColorAndroid = 'transparent'
 			value = {this.state.userCommuteMethod}
             onChangeText={userCommuteMethod => this.setState({userCommuteMethod})}
             />
-        </View>
-		
-		
+        </View>		
         
 		<TouchableOpacity style={styles.btnRegister} onPress={this.handleRegister}>
           <Text style={styles.regtext}>Register</Text>
@@ -189,8 +151,6 @@ export default class Register extends Component <[]> {
   }	
 	
 }
-
-
 
 const styles = StyleSheet.create({
   backgroundContainer: {
