@@ -1,7 +1,7 @@
 /* Libraries */
 import React, { Component } from 'react';
 import { Button, Icon } from 'native-base';
-import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet, SafeAreaView, Platform, ActivityIndicator, Dimensions } from 'react-native';
+import { View, Alert, Text, Image, TouchableOpacity, FlatList, StyleSheet, SafeAreaView, Platform, ActivityIndicator, Dimensions } from 'react-native';
 import { Ionicons, Feather, Entypo, EvilIcons } from "@expo/vector-icons";
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
@@ -33,12 +33,15 @@ class MapViewScreen extends Component {
             currPos: null,
             destPos: null,
             prevLatLng: {},
-            markers:[],
+            mrtmarker1:[],
+            mrtmarker2: [],
+            mapDir: [],
+            checkReach: false,
+            display: true,
             distanceTravelled: 0,
             startedLiveTracking: false,
             loader: true
         };
-        this.getNearestMRT = this.getNearestMRT.bind(this);
     }
     
 
@@ -59,17 +62,6 @@ class MapViewScreen extends Component {
             prevLatLng: newLatLngs
           })
     }
-
-    // componentDidMount = async () => {
-    //     const { distanceTravelled } = this.state
-    //     let position = await Location.getCurrentPositionAsync({});
-    //     const newLatLngs = {latitude: position.coords.latitude, longitude: position.coords.longitude }
-    //     const positionLatLngs = pick(position.coords, ['latitude', 'longitude'])
-    //     this.setState({
-    //         distanceTravelled: distanceTravelled + this.calcDistance(newLatLngs),
-    //         prevLatLng: newLatLngs
-    //       })
-    // }
 
     // UTILITY FUNCTIONS
 
@@ -141,22 +133,63 @@ class MapViewScreen extends Component {
       }
 
     getNearestMRT = async () => {
-        let Loc = await Location.getCurrentPositionAsync({});
-        let cLoc = [Loc.coords.longitude, Loc.coords.latitude]
-        const nearestMRT = getNearestMrt(cLoc, false, 2000)
-        // const nearestMRT = getNearestMrt(cLoc, false, 2000)
-        // let currLoc = {
-        //     latitude: nearestMRT.result[0].station.latitude,
-        //     longitude: nearestMRT.result[0].station.longitude
+        const { currPos, destPos } = this.state
+        //total distance
+        const tDist = haversine(currPos, destPos)
+        if (destPos === null) {
+            Alert.alert(
+                'Notice',
+                'Your destination is too near or empty. Try again'
+            )
+        }
+        // Need check location within radius to move to last mile
+        // else if () {
+                //hide button
+        //     this.setState({checkReach: false})
         // }
-        // this.setState({
-        //     markers: [
-        //         ...this.state.markers,
-        //     {
-        //         coordinate: currLoc
-        //     }
-        //     ] 
-        // })
+        else {
+            let cLoc = [currPos.longitude, currPos.latitude]
+            let dLoc = [destPos.longitude, destPos.latitude]
+            const firstnearestMRT = getNearestMrt(cLoc, false, 2000)
+            const secnearestMRT = getNearestMrt(dLoc, false, 2000)
+            let currLoc = {
+                latitude: firstnearestMRT.result[0].station.latitude,
+                longitude: firstnearestMRT.result[0].station.longitude
+            }
+            let secLoc = {
+                latitude: secnearestMRT.result[0].station.latitude,
+                longitude: secnearestMRT.result[0].station.longitude
+            }
+            this.setState({
+                mrtmarker1: [
+                    ...this.state.mrtmarker1,
+                {
+                    coordinate: currLoc
+                }
+                ],
+                mrtmarker2: [
+                    ...this.state.mrtmarker2,
+                {
+                    coordinate: secLoc
+                }
+                ],
+                mapDir: [
+                    ...this.state.mapDir,
+                    {
+                        origin: currPos,
+                        destination: currLoc,
+                        apikey: GMAPS_API_KEY,
+                        strokeWidth: 3,
+                        strokeColor: '#00008b'
+                    }
+                ],
+                display:  false 
+            })
+            Alert.alert(
+                'Notice',
+                'Start at: ' + firstnearestMRT.result[0].station.name+ '\n'+'End at: ' + secnearestMRT.result[0].station.name
+            )        
+        }
     }
 
     animate = () => {
@@ -197,11 +230,22 @@ class MapViewScreen extends Component {
                     >
                         {/* <Marker coordinate={currPos} title={'Start'} /> */}
                         {destPos ? <Marker coordinate={destPos} title={'Destination'} /> : null}
-                        {this.state.markers.map((marker) => {
+                        {this.state.mrtmarker1.map((m1) => {
                             return (
-                            <Marker {...marker} />
+                            <Marker {...m1} />
                             ) 
                         })}
+                        {this.state.mrtmarker2.map((m2) => {
+                            return (
+                            <Marker {...m2} />
+                            ) 
+                        })}
+                        {this.state.mapDir.map((Dir) => {
+                            return (
+                            <MapViewDirections {...Dir} />
+                            ) 
+                        })}
+                        { this.state.display && 
                         <MapViewDirections
                             origin={currPos}
                             destination={destPos}
@@ -210,6 +254,7 @@ class MapViewScreen extends Component {
                             strokeWidth={3}
                             strokeColor='#222'
                             />
+                        }
                         
                     </MapView>
                     
@@ -245,7 +290,7 @@ class MapViewScreen extends Component {
                     </View>
                     <View style={styles.fmbox}>
                         <Button iconLeft
-                        onPress={this.getNearestMRT}>
+                        onPress={this.getNearestMRT.bind(this)}>
                             <Icon name='paw'/>
                             <Text style={{color: '#fff'}}>Start First Mile</Text>
                         </Button>
