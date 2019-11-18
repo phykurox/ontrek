@@ -8,9 +8,11 @@ import {
     ProgressBarAndroid,
     TouchableOpacity
 } from "react-native";
+import Header from '../components/header'
 
 import { Left, Right, Icon, Container, Body, Content, Card, CardItem } from 'native-base';
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+
+
 
 
 class FPEXP extends Component {

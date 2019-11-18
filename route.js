@@ -9,13 +9,7 @@ import Search from "./screens/searchAddress"
 import { createStackNavigator } from 'react-navigation-stack'
 import { createAppContainer } from "react-navigation"
 var app = createStackNavigator({
-    FPEXP: {
-        screen: FPEXP,
-        navigationOptions: () => ({
-            header: null
-        })
 
-    },
     Homepage:{
         screen: Homepage,
         navigationOptions: () => ({
@@ -44,7 +38,13 @@ var app = createStackNavigator({
         })
     },
 
-  
+    FPEXP: {
+        screen: FPEXP,
+        navigationOptions: () => ({
+            header: null
+        })
+
+    },
 
     Feedback: {
         screen: Feedback,
