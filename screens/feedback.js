@@ -28,7 +28,7 @@ export default class Feedback extends Component {
             alert("Feedback is empty. Please enter your feedback.")
         }else{
             alert("Feedback has been sent successfully")
-            this.props.navigation.goBack()
+            this.props.navigation.navigate("Homepage")
         }
     }
     render() {

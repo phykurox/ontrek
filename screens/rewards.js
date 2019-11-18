@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
-import Route from './src/route'
-export default class App extends Component {
+
+export default class Rewards extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -10,9 +10,9 @@ export default class App extends Component {
 
   render() {
     return (
-      <Route />
-      
+      <View>
+        <Text> rewards </Text>
+      </View>
     );
-    
   }
 }

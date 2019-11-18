@@ -10,6 +10,8 @@ export default class Homepage extends Component {
     navigateTo(title) {
         if (title == 'Travel') {
             this.props.navigation.navigate('Map')
+        }else if(title == 'Rewards'){
+            this.props.navigation.navigate('Rewards')
         }
     }
     makeView(title, image, rightMargin) {
