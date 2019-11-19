@@ -48,7 +48,7 @@ export default class Register extends Component <[]> {
 	}
 	
 	validateGender = (gender) => {
-		var re4 = /(Male|Female)/;
+		var re4 = /^(Male|Female)$/;
 		return re4.test(gender);		
 	}
 	
@@ -80,19 +80,28 @@ export default class Register extends Component <[]> {
 			age: this.state.userAge,
 			gender: this.state.userGender,
 			phoneNumber: this.state.userPhoneNumber,
-			preferredCommute: this.state.userCommuteMethod
+			preferredCommute: this.state.userCommuteMethod,
 			footprint: 0,
 			exp: 0
-		})
-	}		
+		  })		  
+	  })
+	  .then(() => {
+	  firebase.auth().currentUser.sendEmailVerification()
+	  .then(function() {
+		alert('A verification email has been sent to your email account.');
+		}).catch(function(error) {
+		alert('An error has occurred. ' + error.message);
+		});
+	  })		
 		
 	}
-  //alert(this.state.userGender);
+	}
+  
   render() {
   return (  
   
     <ImageBackground source={bgImage} style={styles.backgroundContainer}>
-	<ScrollView style={styles.scrollView}>
+	
         <View styles={styles.logoContainer}>
           <Image source = {logo} style={styles.logo}/>
           <Text style={styles.logotext}>ONTREK</Text>
@@ -194,7 +203,7 @@ export default class Register extends Component <[]> {
 		<TouchableOpacity style={styles.btnRegister} onPress={this.handleRegister}>
           <Text style={styles.regtext}>Register</Text>
         </TouchableOpacity>
-	</ScrollView> 
+	 
     </ImageBackground>
 	
     );
