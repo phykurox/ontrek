@@ -20,10 +20,58 @@ import Icon from 'react-native-vector-icons/MaterialIcons'
 
 const { width: WIDTH } = Dimensions.get('window')
 
-export default class Register extends Component <[]> {
-			
+export default class Register extends Component <[]> {	
+	
+	state = {
+      userEmail: '',
+      userPassword: '',
+	  userName: '',
+	  userDOB: '',
+	  userGender: '',
+	  userPhoneNumber: '',
+	  userCommuteMethod: ''
+    }
+		
+	validateEmail = (email) => {
+		var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		return re.test(email);
+	}
+	
+	validatePassword = (password) => {
+		var re2 = /^((?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}))/;
+		return re2.test(password);		
+	}
+	
+	validatePhoneNumber = (phoneNumber) => {
+		var re3 = /^(?=[0-9]{8})/;
+		return re3.test(phoneNumber);		
+	}
+	
+	validateGender = (gender) => {
+		var re4 = /(Male|Female)/;
+		return re4.test(gender);		
+	}
+	
 	handleRegister = () => {
-	  firebase.auth().createUserWithEmailAndPassword(this.state.userEmail, this.state.userPassword)
+				
+		if (this.state.userEmail == '' || this.state.userPassword == '' || this.state.userName == '' || this.state.userAge == '' || this.state.userGender == '' || this.state.userPhoneNumber == '' || this.state.userCommuteMethod == ''){
+						
+			alert('Please fill up the empty fields.');
+		} else if (!this.validateEmail(this.state.userEmail)){
+			
+			alert('Please enter a valid email.');
+		} else if (!this.validatePassword(this.state.userPassword)) {
+			
+			alert('Password must be at least 8 characters long, contains at least 1 uppercase, lowercase and numeric characters, as well as NO special characters.');
+		} else if (!this.validatePhoneNumber(this.state.userPhoneNumber)) {
+			
+			alert('Please enter a Singapore phone number without country code and spaces. eg.90765827');
+		} else if (!this.validateGender(this.state.userGender)) {
+			
+			alert('Please enter "Male" or "Female" for gender.');
+		} else {
+			
+			firebase.auth().createUserWithEmailAndPassword(this.state.userEmail, this.state.userPassword)
 	  .then((res) => {
 		  firebase.database().ref('users/').push({
 			email: this.state.userEmail,
@@ -32,32 +80,27 @@ export default class Register extends Component <[]> {
 			age: this.state.userAge,
 			gender: this.state.userGender,
 			phoneNumber: this.state.userPhoneNumber,
-			preferredCommute: this.state.userCommuteMethod			  
-		  })
-		  
-	  })
-  }
-	
-	state = {
-      userEmail: '',
-      userPassword: '',
-	  userName: '',
-	  userAge: '',
-	  userGender: '',
-	  userPhoneNumber: '',
-	  userCommuteMethod: ''
-    }
-  
+			preferredCommute: this.state.userCommuteMethod
+			footprint: 0,
+			exp: 0
+		})
+	}		
+		
+	}
+  //alert(this.state.userGender);
   render() {
   return (  
+  
     <ImageBackground source={bgImage} style={styles.backgroundContainer}>
+	<ScrollView style={styles.scrollView}>
         <View styles={styles.logoContainer}>
           <Image source = {logo} style={styles.logo}/>
           <Text style={styles.logotext}>ONTREK</Text>
         </View>
 
         <View style={styles.inputContainer}>
-        
+        <Icon name={'person-outline'} size={28} color={'rgba(255,255,255,0.7)'} 
+          style = {styles.inputIcon}/>
           <TextInput 
 			style={styles.input}
             placeholder = {'Full Name'}
@@ -69,7 +112,8 @@ export default class Register extends Component <[]> {
         </View>
 		
 		<View style={styles.inputContainer}>
-          
+        <Icon name={'email'} size={28} color={'rgba(255,255,255,0.7)'} 
+          style = {styles.inputIcon}/>  
           <TextInput 
 			style={styles.input}
             placeholder = {'Email'}
@@ -82,7 +126,8 @@ export default class Register extends Component <[]> {
         </View>
 
         <View style={styles.inputContainer}>
-        
+        <Icon name={'lock-outline'} size={28} color={'rgba(255,255,255,0.7)'} 
+          style = {styles.inputIcon}/>
           <TextInput 
 			style={styles.input}
             placeholder = {'Password'}
@@ -95,10 +140,11 @@ export default class Register extends Component <[]> {
         </View>  		
 		
 		<View style={styles.inputContainer}>
-        
+        <Icon name={'portrait'} size={28} color={'rgba(255,255,255,0.7)'} 
+          style = {styles.inputIcon}/>
           <TextInput 
 			style={styles.input}
-            placeholder = {'Age'}
+            placeholder = {'Date of Birth'}
             placeholderTextColor = 'white'
             underlineColorAndroid = 'transparent'
 			value = {this.state.userAge}
@@ -107,10 +153,11 @@ export default class Register extends Component <[]> {
         </View>
 		
 		<View style={styles.inputContainer}>
-        
+        <Icon name={'wc'} size={28} color={'rgba(255,255,255,0.7)'} 
+          style = {styles.inputIcon}/>
           <TextInput 
 			style={styles.input}
-            placeholder = {'Gender'}
+            placeholder = {'Gender: Male/Female'}
             placeholderTextColor = 'white'
             underlineColorAndroid = 'transparent'
 			value = {this.state.userGender}
@@ -119,7 +166,8 @@ export default class Register extends Component <[]> {
         </View>
 		
 		<View style={styles.inputContainer}>
-        
+        <Icon name={'contact-phone'} size={28} color={'rgba(255,255,255,0.7)'} 
+          style = {styles.inputIcon}/>
           <TextInput 
 			style={styles.input}
             placeholder = {'Phone Number'}
@@ -131,7 +179,8 @@ export default class Register extends Component <[]> {
         </View>
 		
 		<View style={styles.inputContainer}>
-        
+        <Icon name={'directions-walk'} size={28} color={'rgba(255,255,255,0.7)'} 
+          style = {styles.inputIcon}/>
           <TextInput 
 			style={styles.input}
             placeholder = {'Commute Method'}
@@ -145,8 +194,9 @@ export default class Register extends Component <[]> {
 		<TouchableOpacity style={styles.btnRegister} onPress={this.handleRegister}>
           <Text style={styles.regtext}>Register</Text>
         </TouchableOpacity>
-
+	</ScrollView> 
     </ImageBackground>
+	
     );
   }	
 	
@@ -156,7 +206,7 @@ const styles = StyleSheet.create({
   backgroundContainer: {
     flex: 1,
     width: null,
-    height: null,
+    //height: null,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -212,6 +262,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: "center"
-  },
+  }
 
 });
