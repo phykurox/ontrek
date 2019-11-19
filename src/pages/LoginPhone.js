@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import * as firebase from 'firebase';
+import RNFirebasePhoneAuth from 'react-native-firebase-phone-auth';
 import {
   StyleSheet,
   View,
@@ -9,7 +10,8 @@ import {
   TextInput,
   Dimensions,
   TouchableOpacity,
-  Alert
+  Alert,
+  DeviceEventEmitter
 } from 'react-native';
 
 import bgImage from '../images/background.jpg'
@@ -18,7 +20,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons'
 
 const { width: WIDTH } = Dimensions.get('window')
 
-export default class Login extends Component {
+export default class LoginPhone extends Component {
 
   constructor(props) {
     super(props);
@@ -55,22 +57,6 @@ export default class Login extends Component {
             onChangeText={email => this.setState({email})}
             />
         </View>
-
-        <View style={styles.inputContainer}>
-        <Icon name={'lock-outline'} size={28} color={'rgba(255,255,255,0.7)'} 
-          style = {styles.inputIcon}/>
-          <TextInput style={styles.input}
-            placeholder = {'Password'}
-            secureTextEntry = {true}
-            placeholderTextColor = 'white'
-            underlineColorAndroid = 'transparent'
-            onChangeText={password => this.setState({password})}
-            />
-
-        </View>
-        <TouchableOpacity style={styles.btnForgot} onPress={() => this.props.navigation.navigate('Forget')}>
-          <Text style={styles.forgettext}>Forgot Password?</Text>
-        </TouchableOpacity>
 
         <TouchableOpacity style={styles.btnLogin} onPress={this.onLoginPress.bind(this)}>
           <Text style={styles.logintext}>Login</Text>

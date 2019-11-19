@@ -21,7 +21,7 @@ export default class Loading extends Component {
     firebase.auth().onAuthStateChanged(
       function(user) {
       if(user){
-        this.props.navigation.navigate('Home')
+        this.props.navigation.navigate('Homepage')
       }
       else{
         this.props.navigation.navigate('Login')

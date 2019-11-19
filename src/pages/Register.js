@@ -32,7 +32,9 @@ export default class Register extends Component <[]> {
 			age: this.state.userAge,
 			gender: this.state.userGender,
 			phoneNumber: this.state.userPhoneNumber,
-			preferredCommute: this.state.userCommuteMethod			  
+      preferredCommute: this.state.userCommuteMethod,
+      foorprint: 0,
+      exp: 0			  
 		  })
 		  
 	  })
