@@ -10,12 +10,6 @@
 
 `npm i react-native-gesture-handler`
 
-`npm i react-native-ratings`
-
-`npm i react-native-reanimated`
-
-`npm i react-native-screens`
-
 #### Useful Commands
 `cd android && gradlew clean`
 
