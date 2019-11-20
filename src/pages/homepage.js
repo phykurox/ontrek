@@ -6,7 +6,7 @@ const { height, width } = Dimensions.get('window')
 
 export default class Homepage extends Component {
 
-    state = { currentUser: null}
+    state = { currentUser: null, realname:'', footprint:''}
 
     constructor(props) {
         super(props);
@@ -23,12 +23,15 @@ export default class Homepage extends Component {
         .equalTo(currentUser && currentUser.email)
         .once('value', snapshot => console.log(snapshot.val()))
         .then(function(snapshot) {
-            var key = Object.keys(snapshot.val())[0];
+            key = Object.keys(snapshot.val())[0];
             fullname = snapshot.child(key).child('name').val();
             fprints = snapshot.child(key).child('footprint').val();
         })
-        this.setState({realname: fullname});
+        //
+        this.setState({realname:fullname});
         this.setState({footprint:fprints});
+        //
+
     }
 
 
@@ -54,6 +57,7 @@ export default class Homepage extends Component {
         )
     }
     render() {
+        const { realname, footprint} = this.state
         return (
             <ScrollView style={{ backgroundColor: '#E3EAF4' }} showsVerticalScrollIndicator={false}>
                 <View style={{ borderBottomColor: '#1681f3', borderBottomWidth: 2, }}>
@@ -63,10 +67,10 @@ export default class Homepage extends Component {
                             source={require('../images/user.jpg')}
                             style={{ height: 80, width: 80, borderRadius: 40, marginTop: 20, borderWidth: 1, borderColor: '#00000090' }} />
                         <Text style={{ fontSize: 30, marginTop: 20 }}>
-                            Welcome {this.state.realname}!
+                            Welcome {realname}
                     </Text>
                         <Text style={{ fontSize: 30, marginTop: 0, fontWeight: 'bold' }}>
-                            {this.state.footprint} <Text style={{ fontWeight: 'normal', fontSize: 20 }}>Footprint</Text>
+                            {footprint} <Text style={{ fontWeight: 'normal', fontSize: 20 }}>Footprint</Text>
                         </Text>
                     </ImageBackground>
                 </View>

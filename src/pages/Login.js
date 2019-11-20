@@ -25,15 +25,28 @@ export default class Login extends Component {
     this.state = {email: '', password: ''};
   }
 
+  validateEmail = (email) => {
+		var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		return re.test(email);
+	}
+
   onLoginPress() {
     const { email, password } = this.state;
-    firebase.auth().signInWithEmailAndPassword(email, password)
-      .then(() => {
-      this.props.navigation.navigate('Homepage');
-    })
-    .catch(() => {
-      Alert.alert('Authentication Error', 'Invalid Credentials');
-    })
+    if(email == '' || password == ''){
+      Alert.alert("Authentication Error", "Empty Field Detected")
+    }
+    else if(!this.validateEmail(email)){
+      alert('Authentication Error', 'Please enter a valid email.');
+    }
+    else{
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(() => {
+        this.props.navigation.navigate('Homepage');
+      })
+      .catch(() => {
+        Alert.alert('Authentication Error', 'Invalid Credentials');
+      })
+    }
   }
 
   render() {
