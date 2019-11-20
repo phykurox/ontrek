@@ -177,26 +177,54 @@ class MapViewScreen extends Component {
                     latitude: FirstbusLocArr.lat,
                     longitude: FirstbusLocArr.lng
                 }
-                const lastBusStopLoc = res.data.routes[0].legs[0].steps[res.data.routes[0].legs[0].steps.length-1].end_location
-                let busm2 = {
-                    latitude: lastBusStopLoc.lat,
-                    longitude: lastBusStopLoc.lng
+                instArr = []
+                for (let step =0; step < res.data.routes[0].legs[0].steps.length; step++) {
+                    if (res.data.routes[0].legs[0].steps[step].travel_mode === 'TRANSIT') {
+                        count = 0
+                        if (count === 0 ) {
+                            firstArr = []
+                            firstArr.push(res.data.routes[0].legs[0].steps[step].transit_details.line.name)
+                            firstArr.push(res.data.routes[0].legs[0].steps[step].transit_details.arrival_stop.name)
+                            firstArr.push(res.data.routes[0].legs[0].steps[step].transit_details.num_stops)      
+                            count += 1 
+                        }
+                        else {
+                            otherArr= []
+                            otherArr.push(res.data.routes[0].legs[0].steps[step].transit_details.line.name)
+                            otherArr.push(res.data.routes[0].legs[0].steps[step].transit_details.arrival_stop.name)
+                            otherArr.push(res.data.routes[0].legs[0].steps[step].transit_details.num_stops)     
+                        }
+                    }
+                    if (step === (res.data.routes[0].legs[0].steps.length-1)) {
+                        const lastBusStopLoc = res.data.routes[0].legs[0].steps[step].start_location
+                        let busm2 = {
+                            latitude: lastBusStopLoc.lat,
+                            longitude: lastBusStopLoc.lng
+                        }
+                        this.setState({
+                            busmarker2: [
+                                ...this.state.busmarker2,
+                                {
+                                    coordinate: busm2,
+                                    name: 'BUS STOP',
+                                    title: 'Destination Stop',
+                                    description: 'Please alight at this stop and continue last mile.'
+                                }
+                            ],
+                            busm2
+                        })  
+                    }            
                 }
-                //Set markers for Bus stops
+                //Set markers and route for Bus stops
                 this.setState({
                     busmarker1: [
                         ...this.state.busmarker1,
-                    {
-                        coordinate: busm1,
-                        name: 'BUS STOP'
-                    }
-                    ],
-                    busmarker2: [
-                        ...this.state.busmarker2,
-                    {
-                        coordinate: busm2,
-                        name: 'BUS STOP'
-                    }
+                        {
+                            coordinate: busm1,
+                            name: 'BUS STOP',
+                            title: 'Take Bus ' + firstArr[0],
+                            description: 'After ' + firstArr[2]+ ' stops, alight at ' +firstArr[1]
+                        }
                     ],
                     fmbus: [
                         ...this.state.fmbus,
@@ -208,11 +236,10 @@ class MapViewScreen extends Component {
                             strokeColor: '#FF0000'
                         }
                     ],
-                    busm2
                 })
                 
             })
-            //set markers for MRT Stops
+            //set markers and route for MRT Stops
             this.setState({
                 mrtmarker1: [
                     ...this.state.mrtmarker1,
@@ -242,7 +269,7 @@ class MapViewScreen extends Component {
                 ],
                 secLoc, display:  false 
             })        
-        }
+         }
     }
 
     gettingLMRoutes = async () => {
