@@ -40,7 +40,7 @@ export default class Feedback extends Component {
                 <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: 20 }}>
 
                     <Text style={{ fontSize: 30, color: "#024295" }}>onTrek</Text>
-                    <Image style={{ height: 60, width: 60, alignSelf: "center", marginTop: 10 }} source={require("../Images/logo.png")}></Image>
+                    <Image style={{ height: 60, width: 60, alignSelf: "center", marginTop: 10 }} source={require("../images/logo2.png")}></Image>
                 </View>
 
                 <Text style={{ textAlign: "center", fontSize: 20, marginTop: 30, color: "#024295" }}>How satisified are you with the journey?</Text>

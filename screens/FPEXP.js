@@ -16,7 +16,31 @@ import { Left, Right, Icon, Container, Body, Content, Card, CardItem } from 'nat
 
 
 class FPEXP extends Component {
+
+    state = {
+        expValue: 0,
+        fpValue: 0,
+        kmValue: 0,
+        totalDistance: 0
+    }
+
+    componentDidMount() {
+        console.log('data from mapview', this.props.navigation.state.params.distanceTravelled)
+        this.setState({ kmValue: this.props.navigation.state.params.distanceTravelled,
+             expValue: 3, fpValue: 6 })
+             if(this.state.kmValue < 0.2* this.state.totalDistance){
+                 this.setState({expValue: 0, fpValue: 0, kmValue: this.props.navigation.state.params.distanceTravelled})
+
+             }else{
+                this.setState({expValue: this.props.navigation.state.params.distanceTravelled * 100,
+                     fpValue: this.props.navigation.state.params.distanceTravelled * 10, 
+                     kmValue: this.props.navigation.state.params.distanceTravelled})
+             }
+    }
+
     render() {
+        const { expValue, fpValue, kmValue } = this.state;
+
         return (
             <Container style={styles.container}>
                 <SafeAreaView>
@@ -28,7 +52,7 @@ class FPEXP extends Component {
                     <View style={{ paddingTop: 10 }}>
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ flex: 1, alignItems: 'center', paddingTop: 10 }}>
-                                <Image source={require("../Images/avatar.png")}
+                                <Image source={require("../images/avatar.png")}
                                     style={{ width: 75, height: 75, borderRadius: 37.5 }} />
                             </View>
                             <View style={{ flex: 3 }}>
@@ -98,23 +122,23 @@ class FPEXP extends Component {
                             </CardItem>
                             <CardItem>
                                 <View>
-                                    <Image source={require("../Images/prize2.jpg")}
+                                    <Image source={require("../images/prize2.jpg")}
                                         style={{ width: 75, height: 75, borderRadius: 37.5 }} />
                                 </View>
                                 <Right style={{ alignItems: 'flex-start', paddingHorizontal: 10 }}>
                                     <View style={{ flexDirection: 'row', flex: 1 }}>
-                                        <Text>+ 10 EXP</Text>
+                                        <Text>+ {expValue}</Text>
                                     </View>
                                     <View style={{ flexDirection: 'row', flex: 1 }}>
 
-                                        <Text>+ 50 FP</Text>
-                                        
+                                        <Text>+ {fpValue}</Text>
+
                                     </View>
                                     <View style={{ flexDirection: 'row', flex: 1 }}>
 
-                                        <Text>+ 2 KM</Text>
+                                        <Text>+ {kmValue}</Text>
                                     </View>
-                              
+
                                 </Right>
 
                             </CardItem>
@@ -135,17 +159,17 @@ class FPEXP extends Component {
                                 <View style={{ flex: 3 }}>
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
                                         <View>
-                                            <Image source={require("../Images/prize.png")}
+                                            <Image source={require("../images/prize.png")}
                                                 style={{ width: 75, height: 75, borderRadius: 37.5 }} />
                                             <Text style={{ alignSelf: 'center' }}>Lvl 10</Text>
                                         </View>
                                         <View>
-                                            <Image source={require("../Images/prize.png")}
+                                            <Image source={require("../images/prize.png")}
                                                 style={{ width: 75, height: 75, borderRadius: 37.5 }} />
                                             <Text style={{ alignSelf: 'center' }}>Lvl 20</Text>
                                         </View>
                                         <View>
-                                            <Image source={require("../Images/prize.png")}
+                                            <Image source={require("../images/prize.png")}
                                                 style={{ width: 75, height: 75, borderRadius: 37.5 }} />
                                             <Text style={{ alignSelf: 'center' }}>Lvl 30</Text>
                                         </View>
@@ -156,12 +180,12 @@ class FPEXP extends Component {
                         </Card>
 
                     </View>
-                    <TouchableOpacity onPress={() => this.props.navigation.navigate('Feedback')} 
-                                        style={{ height: 40, width: 200, backgroundColor: "#024295", alignSelf: "center", marginTop: 20, borderRadius: 25, alignItems: "center", justifyContent: "center", marginTop: 5 }}>
-                                        <Text style={{color:"white", fontSize: 20}}>Proceed to Feedback</Text>
-                                        </TouchableOpacity>
+                    <TouchableOpacity onPress={() => this.props.navigation.navigate('Feedback')}
+                        style={{ height: 40, width: 200, backgroundColor: "#024295", alignSelf: "center", marginTop: 20, borderRadius: 25, alignItems: "center", justifyContent: "center", marginTop: 5 }}>
+                        <Text style={{ color: "white", fontSize: 20 }}>Proceed to Feedback</Text>
+                    </TouchableOpacity>
                 </Content>
-                
+
 
             </Container>
         );
