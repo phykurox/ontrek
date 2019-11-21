@@ -10,30 +10,23 @@ export default class Homepage extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {realname:'', footprint:''};
+        this.state = {realname:'', footprint:'', listOfPositions:[] };
     }
+
 
     componentDidMount() {
         const { currentUser } = firebase.auth();
         this.setState({ currentUser });
-        firebase
-        .database()
-        .ref('users')
-        .orderByChild('email')
-        .equalTo(currentUser && currentUser.email)
-        .once('value', snapshot => console.log(snapshot.val()))
-        .then(function(snapshot) {
-            key = Object.keys(snapshot.val())[0];
-            fullname = snapshot.child(key).child('name').val();
-            fprints = snapshot.child(key).child('footprint').val();
+        const fetchUser = firebase.database().ref('users').orderByChild('email').equalTo(currentUser && currentUser.email);
+        fetchUser.once('value', snap => {
+            const previousList = this.state.listOfPositions;
+            previousList.push({
+                fullname: snap.child(Object.keys(snap.val())[0]).child('name').val(),
+                fprint: snap.child(Object.keys(snap.val())[0]).child('footprint').val()
+            })
+            this.setState({listOfPositions: previousList});
         })
-        //
-        this.setState({realname:fullname});
-        this.setState({footprint:fprints});
-        //
-
     }
-
 
     navigateTo(title) {
          if(title == 'Rewards'){
@@ -57,7 +50,14 @@ export default class Homepage extends Component {
         )
     }
     render() {
-        const { realname, footprint} = this.state
+        const realName = this.state.listOfPositions.map(position => 
+            <Text style={{ fontSize: 30, marginTop: 20 }}>Welcome { position.fullname}</Text>)
+        
+        const footprint = this.state.listOfPositions.map(position =>
+            <Text style={{ fontSize: 30, marginTop: 0, fontWeight: 'bold' }}>
+            {position.fprint} <Text style={{ fontWeight: 'normal', fontSize: 20 }}>Footprint</Text>
+        </Text>)    
+            
         return (
             <ScrollView style={{ backgroundColor: '#E3EAF4' }} showsVerticalScrollIndicator={false}>
                 <View style={{ borderBottomColor: '#1681f3', borderBottomWidth: 2, }}>
@@ -66,12 +66,8 @@ export default class Homepage extends Component {
                         <Image
                             source={require('../images/user.jpg')}
                             style={{ height: 80, width: 80, borderRadius: 40, marginTop: 20, borderWidth: 1, borderColor: '#00000090' }} />
-                        <Text style={{ fontSize: 30, marginTop: 20 }}>
-                            Welcome {realname}
-                    </Text>
-                        <Text style={{ fontSize: 30, marginTop: 0, fontWeight: 'bold' }}>
-                            {footprint} <Text style={{ fontWeight: 'normal', fontSize: 20 }}>Footprint</Text>
-                        </Text>
+                        { realName }
+                        { footprint}
                     </ImageBackground>
                 </View>
                 <View style={{ flexDirection: 'row', flex: 1, padding: 30, width: '100%', marginTop: -50 }}>
