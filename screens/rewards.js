@@ -79,7 +79,7 @@ export default class Rewards extends Component {
                         <CardItem>
                             <View style={{ flexDirection: "row" }}>
                                 <View style={{ flex: 1 }}>
-                                    <Image source={require("../Images/giftvoucher.png")}
+                                    <Image source={require("../images/giftvoucher.png")}
                                         style={{ width: 75, height: 75, borderRadius: 37.5 }} />
                                 </View>
                                 <Right style={{ alignItems: 'flex-start', flex: 3 }}>
@@ -96,7 +96,7 @@ export default class Rewards extends Component {
                         <CardItem>
                             <View style={{ flexDirection: "row" }}>
                                 <View style={{ flex: 1 }}>
-                                    <Image source={require("../Images/giftvoucher.png")}
+                                    <Image source={require("../images/giftvoucher.png")}
                                         style={{ width: 75, height: 75, borderRadius: 37.5 }} />
                                 </View>
                                 <Right style={{ alignItems: 'flex-start', flex: 3 }}>
@@ -113,7 +113,7 @@ export default class Rewards extends Component {
                         <CardItem>
                             <View style={{ flexDirection: "row" }}>
                                 <View style={{ flex: 1 }}>
-                                    <Image source={require("../Images/giftvoucher.png")}
+                                    <Image source={require("../images/giftvoucher.png")}
                                         style={{ width: 75, height: 75, borderRadius: 37.5 }} />
                                 </View>
                                 <Right style={{ alignItems: 'flex-start', flex: 3 }}>
@@ -130,7 +130,7 @@ export default class Rewards extends Component {
                         <CardItem>
                             <View style={{ flexDirection: "row" }}>
                                 <View style={{ flex: 1 }}>
-                                    <Image source={require("../Images/giftvoucher.png")}
+                                    <Image source={require("../images/giftvoucher.png")}
                                         style={{ width: 75, height: 75, borderRadius: 37.5 }} />
                                 </View>
                                 <Right style={{ alignItems: 'flex-start', flex: 3 }}>

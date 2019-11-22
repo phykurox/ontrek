@@ -19,6 +19,8 @@ export default class Homepage extends Component {
         this.state = {
         };
     }
+
+    
     navigateTo(title) {
         if(title == 'Travel'){
             this.props.navigation.navigate("MapViewScreen")
