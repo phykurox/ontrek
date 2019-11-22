@@ -42,19 +42,25 @@ export default class Register extends Component <[]> {
 		return re2.test(password);		
 	}
 	
+	validateDOB = {dob} => {
+		
+		var re3 = /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
+		return re3.test(dob);
+	}
+	
 	validatePhoneNumber = (phoneNumber) => {
-		var re3 = /^(?=[0-9]{8})/;
-		return re3.test(phoneNumber);		
+		var re4 = /^(?=[0-9]{8})/;
+		return re4.test(phoneNumber);		
 	}
 	
 	validateGender = (gender) => {
-		var re4 = /^(Male|Female)$/;
-		return re4.test(gender);		
+		var re5 = /^(Male|Female)$/;
+		return re5.test(gender);		
 	}
 	
 	handleRegister = () => {
 				
-		if (this.state.userEmail == '' || this.state.userPassword == '' || this.state.userName == '' || this.state.userAge == '' || this.state.userGender == '' || this.state.userPhoneNumber == '' || this.state.userCommuteMethod == ''){
+		if (this.state.userEmail == '' || this.state.userPassword == '' || this.state.userName == '' || this.state.userDOB == '' || this.state.userGender == '' || this.state.userPhoneNumber == '' || this.state.userCommuteMethod == ''){
 						
 			alert('Please fill up the empty fields.');
 		} else if (!this.validateEmail(this.state.userEmail)){
@@ -63,6 +69,9 @@ export default class Register extends Component <[]> {
 		} else if (!this.validatePassword(this.state.userPassword)) {
 			
 			alert('Password must be at least 8 characters long, contains at least 1 uppercase, lowercase and numeric characters, as well as NO special characters.');
+		} else if (!this.validateDOB(this.state.userDOB)) {
+			
+			alert('Date of birth must be use the following format:\nDD/MM/YYY OR \nDD-MM-YYY');
 		} else if (!this.validatePhoneNumber(this.state.userPhoneNumber)) {
 			
 			alert('Please enter a Singapore phone number without country code and spaces. eg.90765827');
@@ -77,31 +86,31 @@ export default class Register extends Component <[]> {
 			email: this.state.userEmail,
 			password: this.state.userPassword,
 			name: this.state.userName,
-			age: this.state.userAge,
+			age: this.state.userDOB,
 			gender: this.state.userGender,
 			phoneNumber: this.state.userPhoneNumber,
 			preferredCommute: this.state.userCommuteMethod,
 			footprint: 0,
-			exp: 0
+			exp: 0,
+			feedback: ''
 		  })		  
 	  })
 	  .then(() => {
-	  firebase.auth().currentUser.sendEmailVerification()
-	  .then(function() {
+	  firebase.auth().currentUser.sendEmailVerification().then(function() {
+		this.props.navigation.navigate('Login');  
 		alert('A verification email has been sent to your email account.');
 		}).catch(function(error) {
-		alert('An error has occurred. ' + error.message);
+		alert('An error has occurred.' + error.message);
 		});
 	  })		
 		
 	}
-	}
-  
+  //alert(this.state.userGender);
   render() {
   return (  
   
     <ImageBackground source={bgImage} style={styles.backgroundContainer}>
-	
+	<ScrollView style={styles.scrollView}>
         <View styles={styles.logoContainer}>
           <Image source = {logo} style={styles.logo}/>
           <Text style={styles.logotext}>ONTREK</Text>
@@ -153,11 +162,11 @@ export default class Register extends Component <[]> {
           style = {styles.inputIcon}/>
           <TextInput 
 			style={styles.input}
-            placeholder = {'Date of Birth'}
+            placeholder = {'Date of Birth: DD/MM/YYYY'}
             placeholderTextColor = 'white'
             underlineColorAndroid = 'transparent'
-			value = {this.state.userAge}
-            onChangeText={userAge => this.setState({userAge})}
+			value = {this.state.userDOB}
+            onChangeText={userDOB => this.setState({userDOB})}
             />
         </View>
 		
@@ -203,7 +212,7 @@ export default class Register extends Component <[]> {
 		<TouchableOpacity style={styles.btnRegister} onPress={this.handleRegister}>
           <Text style={styles.regtext}>Register</Text>
         </TouchableOpacity>
-	 
+	</ScrollView> 
     </ImageBackground>
 	
     );
