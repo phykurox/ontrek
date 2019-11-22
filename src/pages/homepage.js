@@ -6,11 +6,11 @@ const { height, width } = Dimensions.get('window')
 
 export default class Homepage extends Component {
 
-    state = { currentUser: null, realname:'', footprint:''}
+    state = { currentUser: null}
 
     constructor(props) {
         super(props);
-        this.state = {realname:'', footprint:'', listOfPositions:[] };
+        this.state = {userInfo:[] };
     }
 
 
@@ -19,12 +19,13 @@ export default class Homepage extends Component {
         this.setState({ currentUser });
         const fetchUser = firebase.database().ref('users').orderByChild('email').equalTo(currentUser && currentUser.email);
         fetchUser.once('value', snap => {
-            const previousList = this.state.listOfPositions;
-            previousList.push({
-                fullname: snap.child(Object.keys(snap.val())[0]).child('name').val(),
-                fprint: snap.child(Object.keys(snap.val())[0]).child('footprint').val()
+            const tempList = this.state.userInfo;
+            var uid = Object.keys(snap.val())[0];
+            tempList.push({
+                fullname: snap.child(uid).child('name').val(),
+                fprint: snap.child(uid).child('footprint').val()
             })
-            this.setState({listOfPositions: previousList});
+            this.setState({userInfo: tempList});
         })
     }
 
@@ -50,12 +51,12 @@ export default class Homepage extends Component {
         )
     }
     render() {
-        const realName = this.state.listOfPositions.map(position => 
-            <Text style={{ fontSize: 30, marginTop: 20 }}>Welcome { position.fullname}</Text>)
+        const realName = this.state.userInfo.map(usr => 
+            <Text style={{ fontSize: 30, marginTop: 20 }}>Welcome { usr.fullname}</Text>)
         
-        const footprint = this.state.listOfPositions.map(position =>
+        const footprint = this.state.userInfo.map(usr =>
             <Text style={{ fontSize: 30, marginTop: 0, fontWeight: 'bold' }}>
-            {position.fprint} <Text style={{ fontWeight: 'normal', fontSize: 20 }}>Footprint</Text>
+            {usr.fprint} <Text style={{ fontWeight: 'normal', fontSize: 20 }}>Footprint</Text>
         </Text>)    
             
         return (
