@@ -99,9 +99,7 @@ class FPEXP extends Component {
 
             firebase.database().ref('users/' + uid).on('value', (snapshot) => {
                 const userObject = snapshot.val();
-                console.log("USEROBJECT" + this.userObject);
                 this.fprint = userObject.footprint;
-                console.log("fprint" + this.fprint)
                 this.exp = userObject.exp;
                 
             } )
@@ -138,60 +136,9 @@ class FPEXP extends Component {
                                 <Image source={require("../images/avatar.png")}
                                     style={{ width: 75, height: 75, borderRadius: 37.5 }} />
                             </View>
-                            <View style={{ flex: 3 }}>
-                                <Card style={{ marginLeft: 5, marginRight: 5, }}>
-                                    <View style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-around'
-                                    }}>
-
-                                        <CardItem style={{
-                                            borderWidth: 1,
-                                            borderBottomColor: '#dee0e2', justifyContent: 'center', flex: 1
-                                        }}>
-                                            <View>
-                                                <Text style={{ fontWeight: 'bold' }}>10</Text>
-                                                <Text style={{ fontSize: 12, color: 'grey' }}>Level</Text>
-                                            </View>
-                                        </CardItem>
-
-                                        <CardItem style={{
-                                            borderWidth: 1,
-                                            borderBottomColor: '#dee0e2', justifyContent: 'center', flex: 1
-                                        }}>
-                                            <View>
-                                                <Text style={{ fontWeight: 'bold', textAlign: 'center' }}>200</Text>
-                                                <Text style={{ fontSize: 12, color: 'grey' }}>FootPrints</Text>
-                                            </View>
-                                        </CardItem>
-
-                                        <CardItem style={{
-                                            borderWidth: 1,
-                                            borderBottomColor: '#dee0e2', justifyContent: 'center', flex: 1
-                                        }}>
-                                            <View>
-                                                <Text style={{ fontWeight: 'bold', textAlign: 'center' }}>5</Text>
-                                                <Text style={{ fontSize: 12, color: 'grey' }}>Badges</Text>
-                                            </View>
-                                        </CardItem>
-                                    </View>
-
-                                </Card>
-
-                            </View>
+           
                         </View>
-                        <View style={{ paddingVertical: 10, paddingHorizontal: 10 }}>
-                            <Text style={{ fontWeight: 'bold' }}>
-                                Lingma Dingdong
-                            </Text>
-                            <Text style={{ fontStyle: 'italic', fontSize: 15 }}>
-                                Singapore Institute of Technology
-                            </Text>
-                            <Text style={{ fontStyle: 'normal', color: '#585858' }}>
-                                Year 2 Information and Communications Technology
-                                (Information Security)
-                            </Text>
-                        </View>
+
                     </View>
 
                     <View>

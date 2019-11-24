@@ -23,17 +23,18 @@ export default class Homepage1 extends Component {
             var uid = Object.keys(snap.val())[0];
             tempList.push({
                 fullname: snap.child(uid).child('name').val(),
-                fprint: snap.child(uid).child('footprint').val()
+                fprint: snap.child(uid).child('footprint').val(),
+                exp: snap.child(uid).child('exp').val()
             })
             this.setState({ userInfo: tempList });
         })
     }
 
     navigateTo(title) {
-  if(title == 'Travel'){
+        if (title == 'Travel') {
             this.props.navigation.navigate("MapViewScreen")
         }
-         if(title == 'Rewards'){
+        if (title == 'Rewards') {
             this.props.navigation.navigate('Rewards')
         }
     }
@@ -58,8 +59,13 @@ export default class Homepage1 extends Component {
             <Text style={{ fontSize: 30, marginTop: 20 }}>Welcome {usr.fullname}</Text>)
 
         const footprint = this.state.userInfo.map(usr =>
-            <Text style={{ fontSize: 30, marginTop: 0, fontWeight: 'bold' }}>
+            <Text style={{ fontSize: 30, marginTop: -10, fontWeight: 'bold' }}>
                 {usr.fprint} <Text style={{ fontWeight: 'normal', fontSize: 20 }}>Footprint</Text>
+            </Text>)
+
+        const exp = this.state.userInfo.map(usr =>
+            <Text style={{ fontSize: 30, marginTop: -10, fontWeight: 'bold' }}>
+                {usr.exp} <Text style={{ fontWeight: 'normal', fontSize: 20 }}>EXP</Text>
             </Text>)
 
         return (
@@ -72,6 +78,7 @@ export default class Homepage1 extends Component {
                             style={{ height: 80, width: 80, borderRadius: 40, marginTop: 20, borderWidth: 1, borderColor: '#00000090' }} />
                         {realName}
                         {footprint}
+                        {exp}
                     </ImageBackground>
                 </View>
                 <View style={{ flexDirection: 'row', flex: 1, padding: 30, width: '100%', marginTop: -50 }}>
