@@ -7,21 +7,22 @@ import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
-import axios from 'axios';
 import getNearestMrt from 'nearest-mrt';
+import axios from 'axios';
 import haversine from 'haversine'
 import pick from 'lodash/pick'
+import * as firebase from 'firebase';
 
 import * as Permissions from 'expo-permissions';
 
 // Env vars
-import getEnvVars from './../../../env';
+import getEnvVars from '../../env';
 
 // Constants
 const WIDTH = Dimensions.get('window').width
 const HEIGHT = Dimensions.get('window').height
 const { GMAPS_API_KEY } = getEnvVars();
-
+ 
 class MapViewScreen extends Component {
     static navigationOptions = {
         header: null
@@ -32,9 +33,13 @@ class MapViewScreen extends Component {
         this.state = {
             startRegion: null,
             currPos: null,
-            destPos: null,
+            destPos: '',
             secLoc: null,
+            currLoc: '',
+            busm1: '',
             busm2: null,
+            currAddr: null,
+            destaddress: null,
             prevLatLng: {},
             mrtmarker1:[],
             mrtmarker2: [],
@@ -48,13 +53,16 @@ class MapViewScreen extends Component {
             display: true,
             distanceTravelled: 0,
             startedLiveTracking: false,
-            loader: true
+            loader: true,
+            checkFMdone: true,
+            hidemrtTrack: true,
+            hidebusTrack: true,
+            userInfo: []
         };
     }
-    
+
 
     componentDidMount = async () => {
-        const { distanceTravelled } = this.state
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status !== 'granted') {
             alert('Location access is important to use this app')
@@ -64,12 +72,24 @@ class MapViewScreen extends Component {
         }
         //calculate distance from start
         let position = await Location.getCurrentPositionAsync({});
-        const newLatLngs = {latitude: position.coords.latitude, longitude: position.coords.longitude }
-        const positionLatLngs = pick(position.coords, ['latitude', 'longitude'])
-        this.setState({
-            distanceTravelled: distanceTravelled + this.calcDistance(newLatLngs),
-            prevLatLng: newLatLngs
-          })
+        this.watchID = navigator.geolocation.watchPosition(
+            position => {
+              const { distanceTravelled } =   this.state;
+              const newLatLngs = {latitude: position.coords.latitude, longitude: position.coords.longitude }
+            this.setState({
+                distanceTravelled: distanceTravelled + this.calcDistance(newLatLngs),
+                prevLatLng: newLatLngs
+            });
+        },
+        error => console.log(error),
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 });
+        let pos = await Location.getCurrentPositionAsync({});
+        const currcord = {latitude: pos.coords.latitude, longitude: pos.coords.longitude }
+        axios.get('https://maps.googleapis.com/maps/api/geocode/json?key='+ GMAPS_API_KEY + '&address=' + currcord.latitude + ',' + currcord.longitude)
+            .then(response => {currAddr = response.data.results[0].formatted_address
+                this.setState({currAddr})
+            }
+        );
     }
 
     // UTILITY FUNCTIONS
@@ -129,7 +149,7 @@ class MapViewScreen extends Component {
             distanceInterval: 0
         }
 
-        // ADD LIVE LOCATION TRACKING ACTION TO AN EVENT
+        // ADD THIS LIVE LOCATION TRACKING ACTION TO WHICHEVER EVENT YOU WANT
         if (!startedLiveTracking) {
             await Location.watchPositionAsync(options, updateCurrentPos)
             this.setState({ startedLiveTracking: true })
@@ -139,28 +159,48 @@ class MapViewScreen extends Component {
     calcDistance(newLatLng) {
         const { prevLatLng } = this.state
         return (haversine(prevLatLng, newLatLng) || 0)
-      }
+    }
 
     gettingFMRoutes = async () => {
-        const { currPos, destPos } = this.state
+        const { currPos, destPos, checkFMdone, busm1, currLoc } = this.state
         //total distance
         const tDist = haversine(currPos, destPos)
-        if (destPos === null) {
+        //check current position's coordinates
+        // For demo, will allow destination of any distance
+        // For real application, put in || tDist < 2.5 for checking.
+        if (destPos === '') {
             Alert.alert(
                 'Notice',
                 'Your destination is too near or empty. Try again'
             )
         }
         // Need check location within radius to move to last mile
-        // else if () {
-                //hide button
-        //     this.setState({checkReach: false})
-        // }
+        else if (checkFMdone === false) {
+            let trackPos = await Location.getCurrentPositionAsync({});
+            const currCorrd = {latitude: trackPos.coords.latitude, longitude: trackPos.coords.longitude }
+            const checkmrtDist = haversine(currCorrd, this.state.currLoc)
+            const checkbusDist = haversine(currCorrd, this.state.busm1)
+            if (checkbusDist < 0.08 || checkmrtDist < 0.08) {
+                this.setState({checkReach: true})
+                Alert.alert(
+                    'Notice',
+                    'You may now check on your last mile!'
+                )
+            }
+            else {
+                Alert.alert(
+                    'Notice',
+                    'You have not fully reached your destination!'
+                )
+            }
+            
+        }
         else {
             let cLoc = [currPos.longitude, currPos.latitude]
             let dLoc = [destPos.longitude, destPos.latitude]
             const firstnearestMRT = getNearestMrt(cLoc, false, 2000)
             const secnearestMRT = getNearestMrt(dLoc, false, 2000)
+            //this.setState({checkReach: true})
             let currLoc = {
                 latitude: firstnearestMRT.result[0].station.latitude,
                 longitude: firstnearestMRT.result[0].station.longitude
@@ -169,6 +209,7 @@ class MapViewScreen extends Component {
                 latitude: secnearestMRT.result[0].station.latitude,
                 longitude: secnearestMRT.result[0].station.longitude
             }
+            this.setState({currLoc})
             // Get Bus Routes
             let busAPI = axios.get('https://maps.googleapis.com/maps/api/directions/json?origin='+currPos.latitude+','+currPos.longitude+'&destination='+destPos.latitude+','+destPos.longitude+'&mode=transit&transit_mode=bus&key='+GMAPS_API_KEY)
             .then(res=> {
@@ -189,6 +230,7 @@ class MapViewScreen extends Component {
                             count += 1 
                         }
                         else {
+                            //For checking if have to transit for bus
                             otherArr= []
                             otherArr.push(res.data.routes[0].legs[0].steps[step].transit_details.line.name)
                             otherArr.push(res.data.routes[0].legs[0].steps[step].transit_details.arrival_stop.name)
@@ -208,7 +250,7 @@ class MapViewScreen extends Component {
                                     coordinate: busm2,
                                     name: 'BUS STOP',
                                     title: 'Destination Stop',
-                                    description: 'Please alight at this stop and continue last mile.'
+                                    description: 'Please alight at this stop and continue last mile.',
                                 }
                             ],
                             busm2
@@ -223,7 +265,7 @@ class MapViewScreen extends Component {
                             coordinate: busm1,
                             name: 'BUS STOP',
                             title: 'Take Bus ' + firstArr[0],
-                            description: 'After ' + firstArr[2]+ ' stops, alight at ' +firstArr[1]
+                            description: 'After ' + firstArr[2]+ ' stops, alight at ' +firstArr[1],
                         }
                     ],
                     fmbus: [
@@ -236,8 +278,8 @@ class MapViewScreen extends Component {
                             strokeColor: '#FF0000'
                         }
                     ],
-                })
-                
+                    busm1
+                })       
             })
             //set markers and route for MRT Stops
             this.setState({
@@ -247,7 +289,7 @@ class MapViewScreen extends Component {
                     coordinate: currLoc,
                     name: 'MRT',
                     title: firstnearestMRT.result[0].station.name + ' STATION',
-                    description: 'Alight at: ' + secnearestMRT.result[0].station.name + ' STATION'
+                    description: 'Alight at: ' + secnearestMRT.result[0].station.name + ' STATION',
                 }
                 ],
                 mrtmarker2: [
@@ -267,38 +309,44 @@ class MapViewScreen extends Component {
                         strokeColor: '#00008b'
                     }
                 ],
-                secLoc, display:  false 
-            })        
+                secLoc, display: false, checkFMdone: false
+            })
          }
     }
 
     gettingLMRoutes = async () => {
-        const { busm2, secLoc, destPos } = this.state
-        this.setState({
-            lmbus: [
-                ...this.state.lmbus,
-                {
-                    origin: busm2,
-                    destination: destPos,
-                    apikey: GMAPS_API_KEY,
-                    strokeWidth: 3,
-                    strokeColor: '#FF0000'
-                }
-            ],
-            lmmrt: [
-                ...this.state.lmmrt,
-                {
-                    origin: secLoc,
-                    destination: destPos,
-                    apikey: GMAPS_API_KEY,
-                    strokeWidth: 3,
-                    strokeColor: '#00008b'
-                }
-            ]
-        })
-
+        const { busm2, secLoc, destPos, checkReach } = this.state
+        if (checkReach === false) {
+            Alert.alert(
+                'Notice',
+                'You have not finished your first mile!'
+            )
+        }
+        else {
+            this.setState({
+                lmbus: [
+                    ...this.state.lmbus,
+                    {
+                        origin: busm2,
+                        destination: destPos,
+                        apikey: GMAPS_API_KEY,
+                        strokeWidth: 3,
+                        strokeColor: '#FF0000'
+                    }
+                ],
+                lmmrt: [
+                    ...this.state.lmmrt,
+                    {
+                        origin: secLoc,
+                        destination: destPos,
+                        apikey: GMAPS_API_KEY,
+                        strokeWidth: 3,
+                        strokeColor: '#00008b'
+                    }
+                ]
+            })
+        }
     }
-
 
     animate = () => {
         setTimeout(() => {
@@ -313,6 +361,15 @@ class MapViewScreen extends Component {
             );
         }, 15)
     }
+
+
+    endJourney = () => {
+        //console.log("distance travelled" + this.state.distanceTravelled + this.state.tDist);
+        this.props.navigation.navigate('FPEXP', { distanceTravelled: this.state.distanceTravelled, tDist: this.state.tDist, currPos: this.state.currAddr, destPos: this.state.destaddress}); //this.state.distanceTravelled, Dist: this.state.tDist });
+       
+    }
+
+
     // UTILITY FUNCTIONS
 
     render() {
@@ -340,7 +397,7 @@ class MapViewScreen extends Component {
                         {destPos ? <Marker coordinate={destPos} title={'Destination'} /> : null}
                         {this.state.mrtmarker1.map((m1) => {
                             return (
-                                <Marker {...m1} >
+                                <Marker {...m1} onPress={() => this.setState({hidebusTrack: false, hidemrtTrack: true})}>
                                 <View style={styles.markers}>
                                     <Text style={styles.mtxt}>{m1.name}</Text>
                                 </View>
@@ -358,7 +415,7 @@ class MapViewScreen extends Component {
                         })}
                         {this.state.busmarker1.map((b1) => {
                             return (
-                                <Marker {...b1} >
+                                <Marker {...b1} onPress={() => this.setState({hidemrtTrack: false, hidebusTrack:true})}>
                                 <View style={styles.markers}>
                                     <Text style={styles.mtxt}>{b1.name}</Text>
                                 </View>
@@ -367,19 +424,19 @@ class MapViewScreen extends Component {
                         })}
                         {this.state.busmarker2.map((b2) => {
                             return (
-                                <Marker {...b2} >
+                                <Marker {...b2} onPress={() => this.setState({hidemrtTrack: false, hidebusTrack:true})} >
                                 <View style={styles.markers}>
                                     <Text style={styles.mtxt}>{b2.name}</Text>
                                 </View>
                             </Marker>
                             ) 
                         })}
-                        {this.state.fmmrt.map((fmm1) => {
+                        {this.state.hidemrtTrack && this.state.fmmrt.map((fmm1) => {
                             return (
                             <MapViewDirections {...fmm1} />
                             ) 
                         })}
-                        {this.state.fmbus.map((fmb1) => {
+                        {this.state.hidebusTrack && this.state.fmbus.map((fmb1) => {
                             return (
                             <MapViewDirections {...fmb1} />
                             ) 
@@ -394,19 +451,17 @@ class MapViewScreen extends Component {
                             <MapViewDirections {...lmd2} />
                             ) 
                         })}
-                        { this.state.display && 
-                        <MapViewDirections
-                            origin={currPos}
-                            destination={destPos}
-                            apikey={GMAPS_API_KEY}
-                            onReady={() => {}}
-                            strokeWidth={3}
-                            strokeColor='#222'
+                        {this.state.display &&
+                            <MapViewDirections
+                                origin={currPos}
+                                destination={destPos}
+                                apikey={GMAPS_API_KEY}
+                                onReady={() => { }}
+                                strokeWidth={3}
+                                strokeColor='#222'
                             />
                         }
-                        
                     </MapView>
-                    
                     <View style={{ ...styles.autoCompleteContainer, zIndex: 1 }}>
                         <Text style={{ ...styles.Text }}>Start</Text>
                         <View style={{ flexDirection: 'row' }}>
@@ -419,7 +474,7 @@ class MapViewScreen extends Component {
                                 fetchDetails={true}
                                 getDefaultValue={() => 'Current location'}
                                 onPress={(data, details = null) => {
-                                    this.setState({ address: data.description || data.name })
+                                    this.setState({ destaddress: data.description || data.name })
                                     const position = {
                                         coords: {
                                             latitude: details.geometry.location.lat,
@@ -449,7 +504,7 @@ class MapViewScreen extends Component {
                                 fetchDetails={true}
                                 getDefaultValue={() => this.state.address || ''}
                                 onPress={(data, details = null) => {
-                                    this.setState({ address: data.description || data.name })
+                                    this.setState({ destaddress: data.description || data.name })
                                     const position = {
                                         coords: {
                                             latitude: details.geometry.location.lat,
@@ -485,6 +540,10 @@ class MapViewScreen extends Component {
                         <View style={styles.bottomBarGroup}>
                             <Text style={styles.bottomBarHeader}>DISTANCE</Text>
                             <Text style={styles.bottomBarContent}>{parseFloat(this.state.distanceTravelled).toFixed(2)} km</Text>
+                            <TouchableOpacity onPress={this.endJourney}
+                                style={{ height: 50, width: 100, backgroundColor: "#024295", marginTop: -40, borderRadius: 25, alignItems: "center", justifyContent: "center" }}>
+                                <Text style={{ color: "white", fontSize: 15 }}>End Journey</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </View>
@@ -504,7 +563,7 @@ class MapViewScreen extends Component {
 };
 
 const styles = StyleSheet.create({
-    fmbox:{
+    fmbox: {
         bottom: 100,
         right: 20,
         position: 'absolute',
@@ -547,24 +606,24 @@ const styles = StyleSheet.create({
         padding: 10,
         flexWrap: 'wrap',
         flexDirection: 'row'
-      },
-      bottomBarGroup: {
+    },
+    bottomBarGroup: {
         flex: 1
-      },
-      bottomBarHeader: {
+    },
+    bottomBarHeader: {
         color: '#fff',
         fontWeight: "400",
         textAlign: 'center'
-      },
-      bottomBarContent: {
+    },
+    bottomBarContent: {
         color: '#fff',
         fontWeight: "700",
         fontSize: 18,
         marginTop: 5,
         color: '#19B5FE',
         textAlign: 'center'
-      },
-      markers: {
+    },
+    markers: {
         backgroundColor: "#550bbc",
         padding: 5 ,
         borderRadius: 5,
