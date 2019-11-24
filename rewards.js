@@ -6,19 +6,48 @@ import {
     TouchableOpacity,
     Platform,
     StatusBar,
-    Image
+    Image,
+    FlatList
 } from "react-native";
 import { Left, Right, Icon, Container, Item, Input, Content, Card, CardItem, Button } from 'native-base';
 import Header from '../components/header'
+import * as firebase from 'firebase';
+//import { FlatList } from "react-native-gesture-handler";
 
 
 export default class Rewards extends Component {
+
+    //create a state called currentUser an assign a null value
+    state = {currentUser: null}
+
     constructor(props) {
         super(props);
-        this.state = {
-        };
+        //create a state userInfo and assign it as empty array 
+        this.state = {userInfo: []};
+        this.state = {voucher: []};
     }
+
+    componentDidMount()
+    {
+        const {currentUser} = firebase.auth();
+        //setting the state of the current user to the authenticated user
+        this.setState({currentUser});
+        const fetchUserData = firebase.database().ref('users').orderByChild('email').equalTo(currentUser && currentUser.email);
+        fetchUserData.once('value', snap => {
+            const tempList = this.state.userInfo;//setting templist to empty
+            var uid = Object.keys(snap.val())[0];//this is taking the userid
+            tempList.push({
+                fprint: snap.child(uid).child('footprint').val()
+            })
+            this.setState({userInfo: tempList});
+        })
+
+    }
+
     render() {
+        const realName = this.state.userInfo.map(usr =>
+            <Text style={{ fontSize: 20, marginTop: 20 }}> {usr.fprint}</Text>)
+            
         return (
             <Container style={styles.container}>
                  <Header
@@ -61,10 +90,14 @@ export default class Rewards extends Component {
                         height: 50, backgroundColor: '#e7e7eb',
                         flexDirection: 'row', paddingHorizontal: 5, alignItems: 'center'
                     }}>
+                        
                         <Text>Footprints: </Text>
-                        <View style={{ flex: 1, backgroundColor: 'white' }}>
-                            <Text>5000</Text>
+                        <View >
+                            <Text>{realName}</Text>
                         </View>
+                        
+                        
+                        
 
                     </View>
 
@@ -84,11 +117,11 @@ export default class Rewards extends Component {
                                 </View>
                                 <Right style={{ alignItems: 'flex-start', flex: 3 }}>
                                     <Text style={{ fontWeight: 'bold', fontSize: 15 }}>
-                                        15% discount code</Text>
+                                            hello</Text>
                                     <Text style={{ fontStyle: 'italic', color: 'grey' }}>
-                                        Gong Cha</Text>
+                                            hello</Text>
                                     <Text style={{ color: 'red', fontWeight: 'bold' }}>
-                                        20 Footprints</Text>
+                                            hello</Text>
                                 </Right>
                             </View>
                         </CardItem>
