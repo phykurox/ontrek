@@ -8,7 +8,6 @@ import Register from './src/pages/Register';
 
 import Feedback from "./src/pages/feedback"
 import FPEXP from "./src/pages/FPEXP"
-//import Homepage from "./src/pages/homepage"
 import Rewards from "./src/pages/rewards"
 import MapViewScreen from "./src/pages/MapView"
 import Homepage1 from "./src/pages/homepage1"
@@ -19,8 +18,6 @@ const RootStack = createStackNavigator({
 	Register: {screen: Register},
 	Login: {screen: Login},
 	Forget: {screen: Forgotpw},
-
-	//Homepage: {screen: Homepage},
 	Homepage1: {screen: Homepage1},
 	Rewards: {screen: Rewards},
 	FPEXP: {screen: FPEXP},
